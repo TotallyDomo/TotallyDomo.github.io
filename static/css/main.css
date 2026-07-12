@@ -79,6 +79,37 @@ h1, h2, h3 { line-height: 1.25; color: var(--text); }
 h1 { font-size: 26px; }
 h2 { font-size: 20px; }
 
+/* Profile landing header */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding-block: 8px 20px;
+}
+
+.avatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  flex-shrink: 0;
+}
+
+.profile-text { min-width: 0; }
+.profile-text h1 { margin: 0 0 4px; font-size: 28px; }
+
+.tagline { color: var(--muted); margin: 0 0 12px; }
+
+.profile-links a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-right: 16px;
+}
+.profile-links a:hover { color: var(--text); }
+
+.intro { margin-bottom: 8px; }
+
 /* Post list - bordered rows, mirroring the backlog GUI's row treatment */
 .post-list h2 {
   font-size: 13px;

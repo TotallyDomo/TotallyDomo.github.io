@@ -1,7 +1,21 @@
 {{ define "main" }}
-  <section class="intro">
-    {{ .Content }}
+  <section class="profile">
+    <img class="avatar" src="{{ "/img/gnome.png" | relURL }}" alt="{{ site.Title }}'s gnome avatar" width="128" height="128">
+    <div class="profile-text">
+      <h1>{{ site.Title }}</h1>
+      <p class="tagline">{{ site.Params.description }}</p>
+      <p class="profile-links">
+        <a href="{{ "/posts/" | relURL }}">Posts</a>
+        <a href="{{ "/about/" | relURL }}">About</a>
+        {{ with site.Params.github }}<a href="{{ . }}" rel="me">GitHub</a>{{ end }}
+      </p>
+    </div>
   </section>
+
+  {{ with .Content }}
+    <section class="intro">{{ . }}</section>
+  {{ end }}
+
   <section class="post-list">
     <h2>Recent posts</h2>
     {{ $posts := where site.RegularPages "Section" "posts" }}

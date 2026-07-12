@@ -27,6 +27,14 @@ so extended vs. standard produces identical output.
 - `static/`   - Assets served as-is (`static/css/main.css`).
 - `.github/workflows/deploy.yml` - CI build + Pages deploy (Hugo version pinned).
 
+## Authoring posts
+
+    hugo new posts/my-post.md
+
+New posts scaffold from `archetypes/posts.md`, which seeds the one-line writing note that every
+post carries (linking to the `/about/` page, which describes the process once). Write the draft
+yourself and keep that line; reword it if a post's process differed.
+
 ## Deploy
 
 Pushing to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it

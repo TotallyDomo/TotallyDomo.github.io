@@ -1,3 +1,3 @@
 <footer class="site-footer">
-  <p>&copy; {{ now.Year }} {{ or site.Params.author site.Title }}. Built with <a href="https://gohugo.io/">Hugo</a>.</p>
+  <p>&copy; {{ now.Year }} {{ or site.Params.author site.Title }}. Built with <a href="https://gohugo.io/">Hugo</a>.{{ with site.Params.github }} <a href="{{ . }}" rel="me">GitHub</a>.{{ end }}</p>
 </footer>

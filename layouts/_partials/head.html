@@ -8,6 +8,7 @@
   {{ end }}
   {{ with or .Description site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
   <link rel="canonical" href="{{ .Permalink }}">
+  <link rel="stylesheet" href="{{ "css/syntax.css" | relURL }}">
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
   {{ if not hugo.IsProduction }}<meta name="robots" content="noindex">{{ end }}
 </head>

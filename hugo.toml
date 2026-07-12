@@ -19,5 +19,5 @@ enableRobotsTXT = true
 
 [markup]
   [markup.highlight]
-    noClasses = false
-    style = "github"
+    noClasses = false        # emit CSS classes; colors come from static/css/syntax.css
+    style = "github-dark"    # used by: hugo gen chromastyles --style=github-dark

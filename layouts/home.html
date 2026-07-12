@@ -1,0 +1,21 @@
+{{ define "main" }}
+  <section class="intro">
+    {{ .Content }}
+  </section>
+  <section class="post-list">
+    <h2>Recent posts</h2>
+    {{ $posts := where site.RegularPages "Section" "posts" }}
+    {{ if $posts }}
+      <ul class="posts">
+        {{ range first 10 $posts }}
+          <li>
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+          </li>
+        {{ end }}
+      </ul>
+    {{ else }}
+      <p>No posts yet.</p>
+    {{ end }}
+  </section>
+{{ end }}

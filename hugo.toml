@@ -1,0 +1,23 @@
+baseURL = "https://totallydomo.github.io/"
+locale = "en-us"
+title = "TotallyDomo"
+enableRobotsTXT = true
+
+# No taxonomies (tags/categories) in the scaffold; add them here + a template when needed.
+[taxonomies]
+
+[params]
+  # Edit these - consumed by the templates and <head>.
+  description = "Personal site."  # placeholder tagline - replace
+  author = "Domas"
+
+[menu]
+  [[menu.main]]
+    name = "Posts"
+    pageRef = "/posts"
+    weight = 10
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+    style = "github"

@@ -8,14 +8,19 @@ enableRobotsTXT = true
 
 [params]
   # Edit these - consumed by the templates and <head>.
-  description = "Personal site."  # placeholder tagline - replace
+  description = "A personal tech blog about AI skills, gamedev, and whatever I'm building."
   author = "Domas"
+  github = "https://github.com/TotallyDomo"
 
 [menu]
   [[menu.main]]
     name = "Posts"
     pageRef = "/posts"
     weight = 10
+  [[menu.main]]
+    name = "About"
+    pageRef = "/about"
+    weight = 20
 
 [markup]
   [markup.highlight]

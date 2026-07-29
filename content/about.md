@@ -1,5 +1,6 @@
 ---
 title: "About"
+description: "Who I am and how this blog gets written: AI skill write-ups and gamedev, drafted by me and structured with AI."
 ---
 
 This is where I write about the tech I work on and mess around with: AI skill write-ups,

@@ -11,6 +11,8 @@ enableRobotsTXT = true
   description = "A personal tech blog about AI skills, gamedev, and whatever I'm building."
   author = "Domas"
   github = "https://github.com/TotallyDomo"
+  # Fallback OpenGraph/Twitter-card image when a page sets no `image` front matter param.
+  defaultImage = "/img/gnome.png"
 
 [menu]
   [[menu.main]]

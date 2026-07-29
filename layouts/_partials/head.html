@@ -1,12 +1,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {{ if .IsHome }}
-    <title>{{ site.Title }}</title>
-  {{ else }}
-    <title>{{ .Title }} - {{ site.Title }}</title>
+  {{ $pageTitle := site.Title }}
+  {{ if not .IsHome }}
+    {{ $pageTitle = printf "%s - %s" .Title site.Title }}
   {{ end }}
-  {{ with or .Description site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
+  {{ $ogType := "website" }}
+  {{ if .IsPage }}
+    {{ $ogType = "article" }}
+  {{ end }}
+  <title>{{ $pageTitle }}</title>
+  {{ $description := plainify (or .Description .Summary site.Params.description) }}
+  {{ $description = htmlUnescape $description }}
+  {{ $description = replaceRE `\s+` " " $description | strings.TrimSpace }}
+  {{ $image := .Params.image | default site.Params.defaultImage | absURL }}
+  <meta name="description" content="{{ $description }}">
+  <meta property="og:title" content="{{ $pageTitle }}">
+  <meta property="og:type" content="{{ $ogType }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:description" content="{{ $description }}">
+  <meta property="og:image" content="{{ $image }}">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="{{ .Permalink }}">
   <link rel="stylesheet" href="{{ "css/syntax.css" | relURL }}">
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">

@@ -1,6 +1,8 @@
 /*
   Dark theme adapted from the shared agentgui palette used by the Agent Backlog
-  and intake-score ("survey") GUIs (GitHub-dark family). Dark-only by design.
+  and intake-score ("survey") GUIs (GitHub-dark family). Dark is the default;
+  the light palette is the GitHub-light counterpart, opted into via the header
+  toggle, which sets data-theme on <html>.
 */
 :root {
   color-scheme: dark;
@@ -22,14 +24,29 @@
   --measure: 46rem;
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --panel: #f6f8fa;
+  --panel-soft: #eff2f5;
+  --text: #1f2328;
+  --muted: #59636e;
+  --line: #d1d9e0;
+  --line-strong: #afb8c1;
+  --accent: #0969da;
+  --accent-soft: #ddf4ff;
+  --shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
+}
+
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
   font-family: var(--font-ui);
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: 1.125rem;
+  line-height: 1.7;
   color: var(--text);
   background: var(--bg);
 }
@@ -42,10 +59,21 @@ body {
   padding-inline: 20px;
 }
 
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 /* Header */
 .site-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
@@ -56,28 +84,112 @@ body {
 
 .site-title {
   font-weight: 650;
-  font-size: 18px;
+  font-size: 1rem;
   color: var(--text);
   text-decoration: none;
+}
+
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .site-nav a {
   color: var(--muted);
   text-decoration: none;
   margin-left: 18px;
+  font-size: 0.9375rem;
 }
 
 .site-nav a:hover,
 .site-nav a[aria-current="page"] { color: var(--text); }
 
-main.content { padding-block: 24px 48px; }
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 12px;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--panel);
+}
+
+.theme-toggle svg { width: 16px; height: 16px; display: block; }
+
+/* The icon shows the theme the button switches to, matching its aria-label. */
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+
+main.content { padding-block: 40px 64px; }
 
 /* Typography */
 a { color: var(--accent); }
 
-h1, h2, h3 { line-height: 1.25; color: var(--text); }
-h1 { font-size: 26px; }
-h2 { font-size: 20px; }
+h1, h2, h3, h4 {
+  color: var(--text);
+  text-wrap: balance;
+  scroll-margin-top: 1.5rem;
+}
+
+h1 {
+  font-size: 2.125rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+h2 {
+  font-size: 1.625rem;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+h4 {
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  font-weight: 650;
+}
+
+p { text-wrap: pretty; }
+
+/* Heading anchors - revealed on hover, always reachable by keyboard. */
+.heading-anchor {
+  margin-left: 0.4em;
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+h2:hover > .heading-anchor,
+h3:hover > .heading-anchor,
+h4:hover > .heading-anchor,
+.heading-anchor:focus-visible { opacity: 1; }
+
+.heading-anchor:hover { color: var(--accent); }
 
 /* Profile landing header */
 .profile {
@@ -97,7 +209,7 @@ h2 { font-size: 20px; }
 }
 
 .profile-text { min-width: 0; }
-.profile-text h1 { margin: 0 0 4px; font-size: 28px; }
+.profile-text h1 { margin: 0 0 6px; font-size: 1.75rem; }
 
 .tagline { color: var(--muted); margin: 0 0 12px; }
 
@@ -112,9 +224,10 @@ h2 { font-size: 20px; }
 
 /* Post list - bordered rows, mirroring the backlog GUI's row treatment */
 .post-list h2 {
-  font-size: 13px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
   color: var(--muted);
   margin-bottom: 8px;
 }
@@ -126,7 +239,7 @@ h2 { font-size: 20px; }
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  padding: 12px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -137,57 +250,233 @@ h2 { font-size: 20px; }
   color: var(--muted);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 0.875rem;
 }
 
 /* Single post */
-.post-header { margin-bottom: 24px; }
-.post-header h1 { margin-bottom: 6px; }
-.post-header time { color: var(--muted); font-size: 14px; }
-.post-header .reading-time { color: var(--muted); font-size: 14px; }
-.post-content img { display: block; margin: 1.8rem auto 0.6rem; }
+.post-header { margin-bottom: 32px; }
+.post-header h1 { margin: 0 0 10px; }
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+/* Post body rhythm - the paragraph and heading spacing that carries the read. */
 .post-content > :first-child { margin-top: 0; }
+
+.post-content p { margin-block: 1.35em; }
+
+.post-content h2 { margin-block: 3rem 0.9rem; }
+.post-content h3 { margin-block: 2.25rem 0.6rem; }
+.post-content h4 { margin-block: 1.75rem 0.4rem; }
+
+/* A heading directly after a heading is a subtitle, not a new section. */
+.post-content h2 + h3,
+.post-content h3 + h4 { margin-top: 1.25rem; }
+
+.post-content a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.post-content a:hover { text-decoration-color: var(--accent); }
+
+.post-content strong { font-weight: 650; }
+
+/* Lists - the item gap is what stops a list reading as one more block of prose. */
+.post-content ul,
+.post-content ol {
+  margin-block: 1.35em;
+  padding-inline-start: 1.6em;
+}
+
+.post-content li { margin-block: 0.5em; }
+.post-content li::marker { color: var(--muted); }
+.post-content li > p { margin-block: 0.5em; }
+.post-content li > ul,
+.post-content li > ol { margin-block: 0.5em; }
+
+.post-content dl { margin-block: 1.35em; }
+.post-content dt { margin-top: 1em; font-weight: 650; }
+.post-content dd { margin-inline-start: 1.6em; }
 
 /* Code - card-like panel with the shared shadow */
 pre {
   overflow-x: auto;
-  padding: 14px 16px;
+  padding: 16px 18px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: var(--shadow);
   font-family: var(--font-mono);
-  font-size: 13.5px;
-  line-height: 1.5;
+  font-size: 0.9375rem;
+  line-height: 1.6;
 }
 
-/* Override chroma's (github-dark) code background with our panel color; syntax.css
-   is linked first, so this wins. Token colors still come from syntax.css. */
+/* The generic `code` size below is for inline code only; without this it
+   compounds with the block size and shrinks fenced code to ~12px. */
+pre code { font-size: inherit; }
+
+/* Override chroma's background with our panel color; syntax.css is linked
+   first, so this wins. Token colors still come from syntax.css. */
 .chroma { background: var(--panel); }
 
-code { font-family: var(--font-mono); font-size: 0.9em; }
+code { font-family: var(--font-mono); font-size: 0.875em; }
 
 :not(pre) > code {
   background: var(--panel-soft);
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 1px 5px;
+  font-weight: 500;
+  overflow-wrap: break-word;
+}
+
+/* Copy-to-clipboard button, injected by site.js */
+.code-block {
+  position: relative;
+  margin-block: 1.75em;
+}
+
+.code-block pre { margin: 0; }
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  background: var(--panel-soft);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.code-block:hover .copy-btn,
+.code-block:focus-within .copy-btn { opacity: 1; }
+
+.copy-btn:hover { color: var(--text); }
+.copy-btn svg { width: 14px; height: 14px; }
+.copy-btn[data-copied="true"] { color: var(--accent); }
+
+@media (hover: none) {
+  .copy-btn { opacity: 1; }
 }
 
 blockquote {
-  margin: 1.2rem 0;
-  padding: 2px 16px;
+  margin-block: 1.75em;
+  margin-inline: 0;
+  padding: 2px 0 2px 20px;
   border-left: 3px solid var(--line-strong);
   color: var(--muted);
+  font-style: italic;
+}
+
+blockquote p { margin-block: 0.75em; }
+blockquote > :first-child { margin-top: 0; }
+blockquote > :last-child { margin-bottom: 0; }
+
+/* Figures - images carry hand-written caption paragraphs in the markdown. */
+figure {
+  margin-block: 2.25rem;
+  margin-inline: 0;
+}
+
+/* A captioned figure hands its bottom margin to the caption. */
+figure:has(+ p > em:only-child) { margin-bottom: 0; }
+
+figure img {
+  display: block;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+}
+
+figcaption {
+  margin: 0.75rem auto 0;
+  max-width: 90%;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* Captions are authored as the italic paragraph following the image, so the
+   caption treatment has to reach a sibling rather than a figcaption. */
+.post-content figure + p:has(> em:only-child) {
+  margin: 0.75rem auto 2.25rem;
+  max-width: 90%;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.post-content figure + p:has(> em:only-child) em { font-style: normal; }
+
+/* The per-post writing note that closes every article. */
+.post-content > p:last-child:has(> em:only-child) {
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.post-content > p:last-child:has(> em:only-child) em { font-style: normal; }
+
+/* Tables */
+.post-content table {
+  width: 100%;
+  margin-block: 1.75em;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.post-content th,
+.post-content td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.post-content th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-bottom-color: var(--line-strong);
 }
 
 img { max-width: 100%; height: auto; border-radius: 6px; }
-hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin-block: 3rem;
+}
 
 /* Footer */
 .site-footer {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 0.875rem;
   border-top: 1px solid var(--line);
   padding-block: 20px 48px;
   margin-top: 40px;
@@ -195,3 +484,21 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 
 .site-footer a { color: var(--muted); }
 .site-footer a:hover { color: var(--text); }
+
+/* Narrow screens - shed a step of the type scale and tighten the section gaps. */
+@media (max-width: 34rem) {
+  body { font-size: 1.0625rem; }
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.375rem; }
+  h3 { font-size: 1.125rem; }
+
+  .post-content h2 { margin-top: 2.25rem; }
+  .post-content h3 { margin-top: 1.75rem; }
+
+  main.content { padding-block: 28px 48px; }
+  .avatar { width: 96px; height: 96px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

@@ -2,6 +2,7 @@
 
 Personal site, built with [Hugo](https://gohugo.io/) and deployed to GitHub Pages via GitHub
 Actions. Hand-written minimal theme (plain CSS, no external theme, no SCSS, no committed binaries).
+Dark by default with a light-mode toggle; the only JavaScript is one progressive-enhancement file.
 
 ## Local development
 
@@ -23,9 +24,19 @@ so extended vs. standard produces identical output.
 ## Structure
 
 - `content/`  - Markdown content; `content/posts/` holds blog posts.
-- `layouts/`  - Hugo templates (minimal hand-written theme; `_partials/` for partials).
-- `static/`   - Assets served as-is (`static/css/main.css`).
+- `layouts/`  - Hugo templates (minimal hand-written theme; `_partials/` for partials,
+  `_markup/` for the heading and image render hooks).
+- `static/`   - Assets served as-is (`static/css/main.css`, `static/js/site.js`).
+- `tools/`    - Repo maintenance scripts.
 - `.github/workflows/deploy.yml` - CI build + Pages deploy (Hugo version pinned).
+
+`static/css/syntax.css` is generated - it carries the dark Chroma theme plus a light override
+scoped to `:root[data-theme="light"]`. Regenerate it after changing either style in `hugo.toml`:
+
+    python tools/gen-syntax-css.py
+
+Images written as a standalone `![alt](src)` become a `<figure>`; the italic paragraph that
+follows one is styled as its caption.
 
 ## Authoring posts
 

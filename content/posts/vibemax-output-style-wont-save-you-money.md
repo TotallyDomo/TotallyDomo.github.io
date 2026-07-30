@@ -98,19 +98,21 @@ The narration halved, the token bill did not move. Why?
 The expensive part of every model is the output tokens (Claude prices them at 5x input),
 so cutting as much output as possible might seem like the correct move when trying to
 optimize token usage. But the report the agent prints when it finishes is only a small
-slice of what the model actually emits. Most of the real cost sits in the tool-call
-loop and in reasoning tokens (billed as output too). Each tool call is a turn, and
-every turn re-reads the whole prompt - which is mostly the fixed system prompt and tool
-schemas rather than the part that grows; in the style-off session below, about three
-quarters of the cache-read bill is that unchanging prefix, re-read twelve times. Even at
-the cached-input multiplier of 0.1x those re-reads add up, and whatever each turn appends
-gets written into the cache at a premium (2x input, at the one-hour cache TTL these
-sessions used). That cache traffic is what dominates the bars in the chart below. Reasoning cost can
-be controlled with the agent's effort setting, but set it too low and the quality of the
-end result suffers. It is a hard balance between efficiency and quality, and it stays
-mostly invisible unless you go looking for it. What is always visible is the text the
-agent prints when it finishes - and the instinct is to cut the fat from the things you
-can see.
+slice of what the model actually emits. 
+
+Most of the real cost sits in the tool-call loop and in reasoning tokens (billed as output too). 
+Each tool call is a turn, and every turn re-reads the whole prompt - which is mostly the 
+fixed system prompt and tool schemas rather than the part that grows; in the style-off 
+session below, about three quarters of the cache-read bill is that unchanging prefix, 
+re-read twelve times. Even at the cached-input multiplier of 0.1x those re-reads add up, 
+and whatever each turn appends gets written into the cache at a premium (2x input, 
+at the one-hour cache TTL these sessions used). That cache traffic is what dominates 
+the bars in the chart below. 
+
+Reasoning cost can be controlled with the agent's effort setting, but set it too low and the 
+quality of the end result suffers. It is a hard balance between efficiency and quality, and it 
+stays mostly invisible unless you go looking for it. What is always visible is the text the
+agent prints when it finishes - and the instinct is to cut the fat from the things you can see.
 
 ![Cost composition of the two demo sessions in two lanes each, tokens and list-price USD: cache reads and cache writes dominate both, the output tokens you never read come next, and the text a human actually reads is an orange sliver - 0.2% and 0.04% of tokens, about 3% and 1% of the dollars ($0.0015 and $0.0008). Bar-end figures are each session's total work: 182K and 392K tokens, $0.054 and $0.088](/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.png)
 
@@ -118,19 +120,21 @@ Those are the exact two sessions from the demo above, priced at API list rates. 
 figure at the end of each bar is that session's total work - all tokens in, all tokens
 out, and the full cost of it. The orange sliver is the only part a human
 ever reads: 0.2% and 0.04% of the tokens, about 3% and 1% of the dollars - $0.0015 and
-$0.0008 out of the $0.054 and $0.088 the sessions cost. Uncached input is in
-the totals but too small to draw at all - 66 and 130 tokens. (The Vibemax run happened to do more
-verification work - 21 API turns against 12 - which is why its bars are longer;
-run-to-run work volume swamps any style effect on totals, and that is exactly the
-point.) Haiku drew the demo, but the picture is not Haiku-specific: the repo's grid
+$0.0008 out of the $0.054 and $0.088 the sessions cost. 
+
+Uncached input is in the totals but too small to draw at all - 66 and 130 tokens. 
+The Vibemax run happened to do more verification work - 21 API turns against 12 - which is 
+why its bars are longer; run-to-run work volume swamps any style effect on totals, and that 
+is exactly the point. 
+
+Haiku drew the demo, but the picture is not Haiku-specific: the repo's grid
 runs the same A/B on four Claude models, and the human-read slice is marginal on all
 of them.
 
 ## Not all output tokens cost the same
 
-There is a wrinkle here that makes the narration case sharper than the chart shows. An
-output token is not billed once. It costs the output rate the moment it is emitted, and
-then it stays in the context: written into the cache once, then re-read on every remaining
+An output token is not billed once. It costs the output rate the moment it is emitted, and
+then it **stays** in the context: written into the cache once, then re-read on every remaining
 turn of the session. So its real price depends on *when* it was emitted. Emitted on the
 first of twelve turns, a token costs about 1.6x its face output rate; in a fifty-turn
 session, 2.4x; in a hundred-turn one, 3.4x. Emitted in the closing message it costs face
@@ -185,6 +189,7 @@ always gets through - so brevity never gets to negotiate against the important s
 compression. The agent suppresses the pre-determined narration output and leaves the core
 untouched. Dropping the play-by-play is safe because it is redundant: the tool calls
 and diffs already sit in the session history, so the future-turn agent loses nothing.
+
 The hedges and assumptions have no such backup channel - the report is the only place
 they exist, which is why selection keeps them. Four things are always guaranteed airtime: questions, caveats, assumptions,
 and a short result - exactly the categories you shouldn't skim past. It still pays
@@ -198,10 +203,9 @@ and the tokenomics section of
 bigger win is the terseness, and the user's saved reading time.
 
 However, within design discussions (like [grill-me](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)
-process, spec creation, etc.)
-the narration is the steering wheel - Vibemax is built for execution-shaped work,
-not for thinking out loud together. And it optimizes your reading time, so an
-unattended pipeline nobody reads gains nothing from it.
+process, spec creation, etc.) the narration is the steering wheel - Vibemax is built for 
+execution-shaped work, not for thinking out loud together. And it optimizes your reading time, 
+so an unattended pipeline nobody reads gains nothing from it.
 
 ## Lessons learned
 

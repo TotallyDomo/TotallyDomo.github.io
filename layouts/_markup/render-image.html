@@ -1,0 +1,12 @@
+{{- $alt := .Text | plainify -}}
+{{- $img := printf `<img src="%s" alt="%s"%s loading="lazy" decoding="async">`
+      (.Destination | safeURL)
+      $alt
+      (cond (eq .Title "") "" (printf ` title="%s"` .Title)) -}}
+{{- if .IsBlock -}}
+  {{/* Standalone images become figures; captions are written as the italic
+       paragraph that follows in the markdown. */}}
+  <figure>{{ $img | safeHTML }}</figure>
+{{- else -}}
+  {{ $img | safeHTML }}
+{{- end -}}

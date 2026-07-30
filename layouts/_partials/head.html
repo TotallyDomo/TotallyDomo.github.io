@@ -32,5 +32,16 @@
   <link rel="icon" href="{{ "img/gnome.png" | relURL }}">
   <link rel="stylesheet" href="{{ "css/syntax.css" | relURL }}">
   <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+  {{/* Applies the stored theme before first paint. Dark is the default, so
+       only an explicit "light" choice sets the attribute. */}}
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem("theme") === "light") {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (e) {}
+    })();
+  </script>
   {{ if not hugo.IsProduction }}<meta name="robots" content="noindex">{{ end }}
 </head>

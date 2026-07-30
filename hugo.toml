@@ -27,4 +27,7 @@ enableRobotsTXT = true
 [markup]
   [markup.highlight]
     noClasses = false        # emit CSS classes; colors come from static/css/syntax.css
-    style = "github-dark"    # used by: hugo gen chromastyles --style=github-dark
+    style = "github-dark"    # regenerate both themes: python tools/gen-syntax-css.py
+  [markup.goldmark.parser]
+    # Lets the image render hook emit a <figure> instead of an invalid <p><figure>.
+    wrapStandAloneImageWithinParagraph = false

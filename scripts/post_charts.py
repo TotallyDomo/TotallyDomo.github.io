@@ -182,6 +182,14 @@ def session_cost_composition():
     # larger; the chart's claim is composition, not arm totals. Fresh uncached input
     # (66 and 130 tokens, ~$0.0001) is folded into the totals but not drawn as its
     # own segment - it is sub-pixel at this scale; the caption says so.
+    # Attribution is billed-at-emission, one bucket per rate - that is what reconciles to
+    # the CLI's own cost_usd, and why cache write stays at the 1h 2.00 rate the run was
+    # actually billed at (1.25 would land 15% under). Deliberately NOT lifetime/marginal
+    # attribution: an emitted output token is also cached once and re-read on later turns,
+    # so the visible text's marginal cost exceeds its bar - 2.9% -> 3.4% of dollars for
+    # the style-off session; the vibemax session's visible text is all on the last API
+    # turn, so its 0.9% is already exact. The post's "Not all output tokens cost the same"
+    # section carries that view; the chart stays on billed buckets so totals reconcile.
     sessions = [
         # label, cache_read, cache_write, fresh_in, output_hidden, visible
         ("Style off", 168_145, 10_017, 66, 3_352 - 308, 308),

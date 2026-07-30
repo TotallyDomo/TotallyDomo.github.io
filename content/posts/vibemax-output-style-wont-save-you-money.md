@@ -152,8 +152,8 @@ turn, so there the same amplification applies to nearly all of what the style cu
 It is still a rounding error. Priced this way, the human-read sliver goes from 2.9% to
 3.4% of the style-off session's dollars, and the Vibemax one does not move at all. The
 chart puts every token in the bucket it was billed in, which is what makes it reconcile
-against the invoice; this section is the marginal-cost view of the same numbers - what you
-would actually stop paying if the text were never printed.
+against the invoice. The higher figure is the marginal one - what you would actually stop
+paying if the text were never printed.
 
 ## About output compression
 

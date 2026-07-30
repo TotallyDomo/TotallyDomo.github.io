@@ -100,10 +100,12 @@ so cutting as much output as possible might seem like the correct move when tryi
 optimize token usage. But the report the agent prints when it finishes is only a small
 slice of what the model actually emits. Most of the real cost sits in the tool-call
 loop and in reasoning tokens (billed as output too). Each tool call is a turn, and
-every turn re-reads the growing session context; even at the cached-input price
-multiplier of 0.1x those re-reads add up, and the new context each turn appends gets
-written into the cache at a premium (1.25x input). That cache traffic is what
-dominates the bars in the chart below. Reasoning cost can
+every turn re-reads the whole prompt - which is mostly the fixed system prompt and tool
+schemas rather than the part that grows; in the style-off session below, about three
+quarters of the cache-read bill is that unchanging prefix, re-read twelve times. Even at
+the cached-input multiplier of 0.1x those re-reads add up, and whatever each turn appends
+gets written into the cache at a premium (2x input, at the one-hour cache TTL these
+sessions used). That cache traffic is what dominates the bars in the chart below. Reasoning cost can
 be controlled with the agent's effort setting, but set it too low and the quality of the
 end result suffers. It is a hard balance between efficiency and quality, and it stays
 mostly invisible unless you go looking for it. What is always visible is the text the
@@ -123,6 +125,31 @@ run-to-run work volume swamps any style effect on totals, and that is exactly th
 point.) Haiku drew the demo, but the picture is not Haiku-specific: the repo's grid
 runs the same A/B on four Claude models, and the human-read slice is marginal on all
 of them.
+
+## Not all output tokens cost the same
+
+There is a wrinkle here that makes the narration case sharper than the chart shows. An
+output token is not billed once. It costs the output rate the moment it is emitted, and
+then it stays in the context: written into the cache once, then re-read on every remaining
+turn of the session. So its real price depends on *when* it was emitted. Emitted on the
+first of twelve turns, a token costs about 1.6x its face output rate; in a fifty-turn
+session, 2.4x; in a hundred-turn one, 3.4x. Emitted in the closing message it costs face
+value exactly - the session ends, and nothing ever reads it again.
+
+That is precisely the difference between the two kinds of text in the demo. The style-off
+run's five "now I'll..." lines sit on turns 1 through 9 of 12, so they cost about 1.5x
+face. Every visible token of the Vibemax run is in the closing report, on the last turn,
+at 1.0x. Mid-task narration is the most expensive shape of output an agent produces and
+the closing report is the cheapest - so the style deletes the expensive kind and keeps the
+cheap one, and the gap widens the longer the session runs. In an interactive session the
+closing report is not really final either, since it sits in context for every later user
+turn, so there the same amplification applies to nearly all of what the style cuts.
+
+It is still a rounding error. Priced this way, the human-read sliver goes from 2.9% to
+3.4% of the style-off session's dollars, and the Vibemax one does not move at all. The
+chart puts every token in the bucket it was billed in, which is what makes it reconcile
+against the invoice; this section is the marginal-cost view of the same numbers - what you
+would actually stop paying if the text were never printed.
 
 ## About output compression
 
@@ -183,7 +210,9 @@ unattended pipeline nobody reads gains nothing from it.
 2. Chasing token savings through a style guide is aiming at the wrong target.
 3. A style's token tax is twofold: input tokens for the contract itself, and
    reasoning/output tokens spent following it.
-4. The real style savings are in user attention and reading time.
+4. An output token's price depends on when it was emitted. Early narration keeps getting
+   re-read for the rest of the session; the closing report never does.
+5. The real style savings are in user attention and reading time.
 
 After this project, I started experimenting with my own "agent report" style. It is still
 in progress, but I already feel that a familiarly-shaped report is faster to parse, which

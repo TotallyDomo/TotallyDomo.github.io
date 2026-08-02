@@ -1,3 +1,6 @@
 /public/
 /resources/_gen/
 .hugo_build.lock
+
+# Scratch stays local, never in tracked content.
+/Temp/

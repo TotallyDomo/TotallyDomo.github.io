@@ -4,3 +4,6 @@
 
 # Scratch stays local, never in tracked content.
 /Temp/
+
+# Python bytecode.
+__pycache__/

@@ -10,10 +10,22 @@
     {{ $ogType = "article" }}
   {{ end }}
   <title>{{ $pageTitle }}</title>
-  {{ $description := plainify (or .Description .Summary site.Params.description) }}
+  {{ $description := or .Summary site.Params.description }}
+  {{ if and (eq (printf "%T" .Description) "string") (findRE `\pL` .Description) }}
+    {{ $description = .Description }}
+  {{ end }}
+  {{ $description = plainify $description }}
   {{ $description = htmlUnescape $description }}
   {{ $description = replaceRE `\s+` " " $description | strings.TrimSpace }}
-  {{ $image := .Params.image | default site.Params.defaultImage | absURL }}
+  {{ $image := site.Params.defaultImage }}
+  {{ $candidateImage := "" }}
+  {{ if eq (printf "%T" .Params.image) "string" }}
+    {{ $candidateImage = strings.TrimSpace .Params.image }}
+  {{ end }}
+  {{ if or (strings.HasPrefix $candidateImage "/") (strings.HasPrefix $candidateImage "http://") (strings.HasPrefix $candidateImage "https://") }}
+    {{ $image = $candidateImage }}
+  {{ end }}
+  {{ $image = $image | absURL }}
   <meta name="description" content="{{ $description }}">
   <meta property="og:title" content="{{ $pageTitle }}">
   <meta property="og:type" content="{{ $ogType }}">

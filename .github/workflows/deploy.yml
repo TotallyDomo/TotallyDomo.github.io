@@ -45,6 +45,8 @@ jobs:
           enablement: true
       - name: Build with Hugo
         run: hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+      - name: Check social metadata
+        run: python tools/check-head-metadata.py
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

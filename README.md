@@ -18,6 +18,10 @@ Production build (output in `public/`, gitignored):
 
     hugo --gc --minify
 
+Verify the homepage and vibemax social metadata, including malformed-value fallbacks:
+
+    python tools/check-head-metadata.py
+
 Note: CI builds with the Hugo *extended* edition (a superset); the theme uses plain CSS only,
 so extended vs. standard produces identical output.
 

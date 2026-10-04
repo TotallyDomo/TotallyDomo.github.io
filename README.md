@@ -42,6 +42,17 @@ scoped to `:root[data-theme="light"]`. Regenerate it after changing either style
 Images written as a standalone `![alt](src)` become a `<figure>`; the italic paragraph that
 follows one is styled as its caption.
 
+Transparent charts opt into theme-aware labels by listing their image URLs under
+`themeImages` in the post's front matter. The renderer switches neutral text and grids
+between the site's dark and light palettes without changing colored data or transparency.
+Screenshots and photographs should not be listed. Chart sources use `#e6edf3` for
+theme-dependent text, `#8b98a9` for secondary text, and `#2a313c` for grids. Use `#f5f8fc`
+for text that must stay pale inside a dark-colored bar. Original images remain the dark
+sources; the browser caches each light rendering once. If conversion is unavailable,
+the source gets a dark backing in light mode so it remains readable.
+
+CI checks theme switching and palette preservation in `tools/check-theme-charts.cjs`.
+
 ## Authoring posts
 
     hugo new posts/my-post.md

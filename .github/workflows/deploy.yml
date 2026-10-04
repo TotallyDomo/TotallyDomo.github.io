@@ -47,6 +47,8 @@ jobs:
         run: hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Check social metadata
         run: python tools/check-head-metadata.py
+      - name: Check chart theme switching
+        run: node tools/check-theme-charts.cjs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -2,6 +2,10 @@
 title: "Shipping My First AI Agent Skill: An (Un)expected Journey"
 date: 2026-07-13
 draft: false
+themeImages:
+  - "/img/posts/unity-corpus/spend-split.png"
+  - "/img/posts/unity-corpus/ranker-vs-representation.png"
+  - "/img/posts/unity-corpus/build-shootout.png"
 ---
 
 When I first started seriously using coding agents, my favorite part was watching the work unroll live - "let me check one thing" turning into a whole chain of searches, edits, tests, and second thoughts. Since I come from gamedev, my first experiments were obviously Unity ones.

@@ -1,11 +1,13 @@
 {{- $alt := .Text | plainify -}}
-{{- $img := printf `<img src="%s" alt="%s"%s loading="lazy" decoding="async">`
+{{- $themeChart := in (.Page.Params.themeImages | default (slice)) .Destination -}}
+{{- $themeAttrs := cond $themeChart ` data-theme-chart class="theme-chart-fallback"` "" -}}
+{{- $img := printf `<img src="%s" alt="%s"%s%s loading="lazy" decoding="async">`
       (.Destination | safeURL)
       $alt
-      (cond (eq .Title "") "" (printf ` title="%s"` .Title)) -}}
+      (cond (eq .Title "") "" (printf ` title="%s"` .Title))
+      $themeAttrs -}}
 {{- if .IsBlock -}}
-  {{/* Standalone images become figures; captions are written as the italic
-       paragraph that follows in the markdown. */}}
+  {{/* WHY: captions are adjacent italic paragraphs, not part of the image hook. */}}
   <figure>{{ $img | safeHTML }}</figure>
 {{- else -}}
   {{ $img | safeHTML }}

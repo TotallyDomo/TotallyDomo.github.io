@@ -7,6 +7,6 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
-  <script src="{{ "js/site.js" | relURL }}" defer></script>
+  <script src="{{ printf "%s?v=%s" ("js/site.js" | relURL) (readFile "static/js/site.js" | crypto.SHA256) }}" defer></script>
 </body>
 </html>

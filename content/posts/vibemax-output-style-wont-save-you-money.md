@@ -3,6 +3,8 @@ title: "Vibemax - Your Agent's Output Style Won't Save You Money"
 date: 2026-07-28
 description: "I built a low-narration response style to cut my agent's output-token bill. The measured answer: that lever barely exists. What it buys instead is reading time."
 image: "/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.png"
+themeImages:
+  - "/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.png"
 draft: false
 ---
 

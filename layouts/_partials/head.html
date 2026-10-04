@@ -43,7 +43,7 @@
   {{ end }}
   <link rel="icon" href="{{ "img/gnome.png" | relURL }}">
   <link rel="stylesheet" href="{{ "css/syntax.css" | relURL }}">
-  <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+  <link rel="stylesheet" href="{{ printf "%s?v=%s" ("css/main.css" | relURL) (readFile "static/css/main.css" | crypto.SHA256) }}">
   {{/* Applies the stored theme before first paint. Dark is the default, so
        only an explicit "light" choice sets the attribute. */}}
   <script>

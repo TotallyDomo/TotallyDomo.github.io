@@ -12,8 +12,24 @@
 # after, through 2026-07-13: 527.4M, $908), Codex 33 sessions / 55.7M / ~$29.
 # USD is list-price equivalent priced per session from model_mix components
 # at the collector's api-pricing-2026-07-02 table (go/cost.go).
+#
+# --- tokenomics.md (writes static/img/posts/tokenomics/)
+# Illustrative calculations designed 2026-10-04, rates verified 2026-10-08:
+# cache writes 2 TC/token, cache reads 0.1 TC/token, output 5 TC/token.
+# Standard global Sonnet 5 API: $2/MTok input, $4/MTok one-hour writes,
+# $0.20/MTok cached reads, $10/MTok output; hence 1 million TC = $2.
+# https://platform.claude.com/docs/en/models/sonnet-5/overview#pricing
+# Context growth: a warm 15K prefix plus 1K new input per turn, including the
+# previous 500-token response; 500 output tokens per turn; no cache expiry.
+# Startup comparison: one prefix write plus 99 reads; task work excluded.
+# Keep-alive: warm 800K prefix, 1h TTL, reads every 55 minutes; all reads hit.
+# Both waiting strategies include resume; new messages/output are excluded.
+# At an exact timer boundary, the plotted resume follows the keep-alive.
+# These figures use closed-form arithmetic, not measured session totals.
 
+import math
 import os
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -253,11 +269,198 @@ def session_cost_composition():
     save(fig, "session-cost-composition.png", out=OUT_VIBEMAX)
 
 
+OUT_TOKENOMICS = os.path.join(os.path.dirname(__file__), "..", "static", "img",
+                            "posts", "tokenomics")
+TOKENOMICS_STYLE = {
+    "font.family": "DejaVu Sans", "font.size": 15,
+    "text.color": TEXT, "axes.labelcolor": MUTED,
+    "xtick.color": MUTED, "ytick.color": MUTED,
+    "axes.edgecolor": LINE, "axes.facecolor": BG,
+    "figure.facecolor": BG, "svg.fonttype": "none",
+    "svg.hashsalt": "tokenomics",
+}
+TOKENOMICS_ORANGE = "#de7422"
+
+
+def _save_tokenomics(fig, stem, dpi=180):
+    os.makedirs(OUT_TOKENOMICS, exist_ok=True)
+    for extension in ("png", "svg"):
+        path = os.path.join(OUT_TOKENOMICS, f"{stem}.{extension}")
+        metadata = {"Date": None} if extension == "svg" else None
+        fig.savefig(path, dpi=dpi, transparent=True, metadata=metadata)
+        if extension == "svg":
+            # WHY: Matplotlib path whitespace otherwise fails the commit's whitespace check.
+            svg = Path(path)
+            clean = "\n".join(line.rstrip() for line in svg.read_text(encoding="utf-8").splitlines())
+            svg.write_text(clean + "\n", encoding="utf-8", newline="\n")
+        print("wrote", path)
+    plt.close(fig)
+
+
+@plt.rc_context(TOKENOMICS_STYLE)
+def tokenomics_context_growth():
+    """Render the warm-context per-turn cost example as PNG and SVG."""
+    turns = [1, 50, 100]
+    rows = [2, 1, 0]
+    reads = [(15_000 + (turn - 1) * 1_000) * 0.1 / 1000 for turn in turns]
+    totals = [cached + 2 + 2.5 for cached in reads]
+    assert totals == [6.0, 10.9, 15.9]
+
+    fig, ax = plt.subplots(figsize=(11, 5.8))
+    fig.subplots_adjust(left=0.16, right=0.98, top=0.71, bottom=0.18)
+    fig.text(0.055, 0.915, "Cost per turn as context grows", fontsize=23, weight="bold")
+    ax.barh(rows, reads, height=0.52, color="#31517e", label="Cached input")
+    ax.barh(rows, [2] * 3, left=reads, height=0.52, color=BLUE, label="Cache writes")
+    ax.barh(rows, [2.5] * 3, left=[value + 2 for value in reads], height=0.52,
+            color=TOKENOMICS_ORANGE, label="Output")
+    for row, cached, total in zip(rows, reads, totals):
+        ax.text(cached / 2, row, f"{cached:g}K", ha="center", va="center",
+                color="#f5f8fc", fontsize=15, weight="bold")
+        ax.text(cached + 1, row, "2K", ha="center", va="center", color=BG,
+                fontsize=15, weight="bold")
+        ax.text(cached + 3.25, row, "2.5K", ha="center", va="center", color=BG,
+                fontsize=15, weight="bold")
+        ax.text(total + 0.28, row, f"{total:g}K TC", ha="left", va="center",
+                fontsize=16, weight="bold")
+    ax.set_xlim(0, 18.5)
+    ax.set_ylim(-0.55, 2.55)
+    ax.set_xticks([0, 5, 10, 15])
+    ax.set_yticks(rows, [f"Turn {turn}" for turn in turns])
+    ax.set_xlabel("Cost per turn (thousand TC)", fontsize=14, labelpad=14)
+    ax.tick_params(axis="x", length=0, pad=10, labelsize=13)
+    ax.tick_params(axis="y", colors=TEXT, length=0, pad=14, labelsize=16)
+    ax.set_axisbelow(True)
+    ax.grid(axis="x", color=LINE, linewidth=0.8)
+    ax.spines[:].set_visible(False)
+    ax.legend(loc="lower left", bbox_to_anchor=(-0.005, 1.08), ncol=3,
+              frameon=False, fontsize=14, labelcolor=TEXT,
+              handlelength=1.3, columnspacing=1.7)
+    _save_tokenomics(fig, "context-growth-cost")
+
+
+@plt.rc_context(TOKENOMICS_STYLE)
+def tokenomics_cold_boot():
+    """Render startup-prefix TC totals and matching Sonnet 5 API equivalents."""
+    turns = list(range(1, 101))
+    small = [15_000 * (2 + (turn - 1) * 0.1) for turn in turns]
+    large = [45_000 * (2 + (turn - 1) * 0.1) for turn in turns]
+    usd_per_tc = 2 / 1_000_000
+    assert round(small[-1]) == 178_500 and round(large[-1]) == 535_500
+    assert round(large[-1] - small[-1]) == 357_000
+    assert round((large[-1] - small[-1]) * usd_per_tc, 3) == 0.714
+
+    fig, ax = plt.subplots(figsize=(11, 6.4))
+    fig.subplots_adjust(left=0.12, right=0.96, top=0.72, bottom=0.18)
+    fig.text(0.065, 0.935, "15K vs. 45K startup context", fontsize=24, weight="bold")
+    fig.text(0.065, 0.88, "The setup cost keeps accumulating after the first turn.",
+             fontsize=14, color=MUTED)
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", color=LINE, linewidth=0.8)
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.tick_params(length=0, pad=9)
+    ax.set_xlim(1, 100)
+    ax.set_xticks([1, 20, 40, 60, 80, 100])
+    ax.set_xlabel("Model turns", labelpad=12)
+    ax.fill_between(turns, [value / 1000 for value in small],
+                    [value / 1000 for value in large], color=BLUE, alpha=0.07)
+    ax.plot(turns, [value / 1000 for value in large], color=TOKENOMICS_ORANGE,
+            linewidth=3, label="45K startup context")
+    ax.plot(turns, [value / 1000 for value in small], color=BLUE,
+            linewidth=3, label="15K startup context")
+    ax.set_ylim(0, 625)
+    ax.set_yticks([0, 150, 300, 450, 600])
+    ax.set_ylabel("Cumulative setup cost (thousand TC)", labelpad=12)
+    ax.annotate(f"535.5K TC\n(~${large[-1] * usd_per_tc:.2f})",
+                xy=(100, large[-1] / 1000), xytext=(-7, 10),
+                textcoords="offset points", color=TOKENOMICS_ORANGE,
+                ha="right", va="bottom", fontsize=14, weight="bold")
+    ax.annotate(f"178.5K TC\n(~${small[-1] * usd_per_tc:.2f})",
+                xy=(100, small[-1] / 1000), xytext=(-7, -10),
+                textcoords="offset points", color=BLUE,
+                ha="right", va="top", fontsize=14, weight="bold")
+    ax.text(48, 183, f"357K TC saved (~${(large[-1] - small[-1]) * usd_per_tc:.2f})\nover 100 turns",
+            fontsize=15, weight="bold", color=BLUE)
+    ax.legend(loc="lower left", bbox_to_anchor=(-0.02, 1.015), ncol=2,
+              frameon=False, fontsize=13)
+    fig.text(0.54, 0.027,
+             "Standard Sonnet 5 API, 1h caching | 1 million TC = $2 | Rates checked 2026-10-08",
+             ha="center", fontsize=10, color=MUTED)
+    _save_tokenomics(fig, "cold-boot-comparison")
+
+
+@plt.rc_context({**TOKENOMICS_STYLE, "font.size": 11})
+def tokenomics_keep_alive():
+    """Render the four-hour wait and idealized keep-alive break-even example."""
+    from matplotlib.ticker import FuncFormatter
+
+    prefix, interval = 800_000, 55
+    read_cost, cold_cost = prefix * 0.1, prefix * 2
+    break_even_requests = 19
+    break_even_hours = break_even_requests * interval / 60
+    hours = [minute / 60 for minute in range(61, 1201)]
+    requests = [math.floor(hour * 60 / interval + 1e-9) for hour in hours]
+    warm_costs = [(count + 1) * read_cost for count in requests]
+    assert cold_cost == 1_600_000 and (4 + 1) * read_cost == 400_000
+    assert (break_even_requests + 1) * read_cost == cold_cost
+
+    fig, (left, right) = plt.subplots(1, 2, figsize=(14, 6.2),
+                                     gridspec_kw={"width_ratios": [0.9, 1.25]})
+    fig.subplots_adjust(left=0.14, right=0.965, top=0.74, bottom=0.17, wspace=0.38)
+    fig.text(0.06, 0.935, "Keep the cache warm while the task is still in flight.",
+             fontsize=21, weight="bold")
+    fig.text(0.06, 0.875,
+             "Illustrative model: 800K-token prefix | 2 TC/write | 0.1 TC/read | keep-alive every 55 minutes",
+             fontsize=11, color=MUTED)
+    left.set_title("A four-hour wait", loc="left", fontsize=15, weight="bold", pad=19)
+    left.barh(1, cold_cost / 1000, height=0.46, color=TOKENOMICS_ORANGE)
+    left.barh(0, 5 * read_cost / 1000, height=0.46, color=BLUE)
+    left.set_yticks([0, 1], ["Keep warm\nthen resume", "Let expire\nthen resume"])
+    left.set_xlim(0, 1950)
+    left.set_ylim(-0.7, 1.65)
+    left.set_xticks([0, 400, 800, 1200, 1600])
+    left.set_xlabel("Prefix cost (thousand TC)", labelpad=12)
+    left.text(1630, 1, "1,600K", va="center", fontsize=11, weight="bold")
+    left.text(435, 0, "400K", va="center", fontsize=11, weight="bold", color=BLUE)
+    left.text(0.02, 0.93, "75% lower cost", transform=left.transAxes,
+              color=BLUE, fontsize=15, weight="bold")
+
+    right.set_title("How long until keep-alives cost as much?", loc="left",
+                    fontsize=15, weight="bold", pad=19)
+    right.axhline(cold_cost / 1_000_000, color=TOKENOMICS_ORANGE, linewidth=2, linestyle="--")
+    right.step(hours, [cost / 1_000_000 for cost in warm_costs],
+               where="post", color=BLUE, linewidth=2.5)
+    right.text(1.5, 1.67, "Cold resume", color=TOKENOMICS_ORANGE, fontsize=11)
+    right.text(9, 0.60, "Keep-alives + resume", color=BLUE, fontsize=11)
+    right.fill_between(hours, [cost / 1_000_000 for cost in warm_costs], cold_cost / 1_000_000,
+                        where=[cost < cold_cost for cost in warm_costs],
+                        step="post", color=BLUE, alpha=0.07)
+    right.plot([4], [0.4], "o", color=BLUE, markersize=6)
+    right.annotate("4h: 400K TC", xy=(4, 0.4), xytext=(5, 0.2), fontsize=10, color=BLUE)
+    right.plot([break_even_hours], [1.6], "o", color=TEXT, markersize=6)
+    right.annotate("19 keep-alives + resume\n~17h 25m: break-even",
+                   xy=(break_even_hours, 1.6), xytext=(8, 1.93), fontsize=10,
+                   arrowprops={"arrowstyle": "-", "color": MUTED, "linewidth": 1})
+    right.set_xlim(1, 20)
+    right.set_ylim(0, 2.2)
+    right.set_xticks([1, 4, 8, 12, 16, 20])
+    right.set_yticks([0, 0.4, 0.8, 1.2, 1.6, 2.0])
+    right.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:g}"))
+    right.set_xlabel("Hours without a useful model request", labelpad=12)
+    right.set_ylabel("Prefix cost (million TC)", labelpad=10)
+    for axis in (left, right):
+        axis.set_axisbelow(True)
+        axis.grid(axis="x" if axis is left else "y", color=LINE, linewidth=0.8)
+        axis.spines[["top", "right", "left"]].set_visible(False)
+        axis.tick_params(axis="both", length=0, pad=8)
+    _save_tokenomics(fig, "keep-alive-payoff", dpi=160)
+
+
 if __name__ == "__main__":
     import sys
     all_charts = {f.__name__: f for f in
                   [build_shootout, ranker_vs_representation, spend_split,
-                   session_cost_composition]}
+                   session_cost_composition, tokenomics_context_growth,
+                   tokenomics_cold_boot, tokenomics_keep_alive]}
     picked = sys.argv[1:] or list(all_charts)
     for name in picked:
         all_charts[name]()

@@ -2,10 +2,6 @@
 title: "Shipping My First AI Agent Skill: An (Un)expected Journey"
 date: 2026-07-13
 draft: false
-themeImages:
-  - "/img/posts/unity-corpus/spend-split.png"
-  - "/img/posts/unity-corpus/ranker-vs-representation.png"
-  - "/img/posts/unity-corpus/build-shootout.png"
 ---
 
 When I first started seriously using coding agents, my favorite part was watching the work unroll live - "let me check one thing" turning into a whole chain of searches, edits, tests, and second thoughts. Since I come from gamedev, my first experiments were obviously Unity ones.
@@ -35,9 +31,7 @@ A C++ rewrite ran in 67.6 seconds, 5.7x faster - but I watched the agents visibl
 
 Go won on the combination that matters here: I can read it, agents iterate on it quickly, and 39k independent pages is exactly what goroutines are for. Public evidence roughly agrees ([Multi-SWE-bench](https://arxiv.org/abs/2504.02605), [Aider's polyglot benchmark](https://aider.chat/2024/12/21/polyglot.html)), though neither proves Go is universally better; it matched what I saw at my desk.
 
-![Full-corpus build times: Python 385.7 s with 245.4 s of it re-reading its own output, C++ 67.6 s, Go 62.9 s, Go with eight workers 38.0 s](/img/posts/unity-corpus/build-shootout.png)
-
-*The four builders of June 28, straight from the preserved manifests.*
+![Finish markers on a shared seconds axis show full-corpus build times: Python 385.7 s, C++ 67.6 s, Go 62.9 s, Go with eight workers 38.0 s. A separate Python pie splits 245.4 s re-reading its output from 140.3 s of other work.](/img/posts/unity-corpus/build-shootout.svg)
 
 All four builds are stamped within one long evening. By the next morning my agents were querying a local corpus: 39,056 pages, 648 MB of HTML down to 123 MiB on disk, about 4 ms per search. Tool done, I figured.
 
@@ -57,9 +51,9 @@ Publishing small open-source tools and writing about them is something I had wan
 
 The logs disagree. The repo went public on July 9. Over the next five days it accumulated 45 commits and roughly 5 big README rewrites. About 70% of the measured spend on this project - tokens or dollars - happened *after* the tool already worked.
 
-![Build versus validate-and-ship spend in two lanes: 229M versus 527M tokens, 30 to 70 percent, and 346 versus 908 dollars list-price, 28 to 72 percent](/img/posts/unity-corpus/spend-split.png)
+The work ran on flat-rate subscriptions, so dollar figures are list-price equivalents, not cash spent.
 
-*Measured spend through July 13, split at the July 9 public date. The dollar lane is the honest one - token counts are distorted by cheap cache reads. It all ran on flat-rate subscriptions, though - the dollars are list-price equivalents, not money spent.*
+![Two pies compare building versus validating and shipping: 229M versus 527M tokens, about 30 to 70 percent, and $346 versus $908 list-price equivalent, about 28 to 72 percent. The pies use different units and compare shares only.](/img/posts/unity-corpus/spend-split.svg)
 
 Turns out you can put a thing through one planning session, ten build sessions, and two validation passes and it still comes out of the slop-oven with a broken benchmark and instructions nobody can follow.
 
@@ -69,9 +63,7 @@ The benchmark was the deeper lesson. The first version reported a very quotable 
 
 The fixed benchmark holds the ranker constant across representations, and the flattering story fell apart: the same search over raw HTML scores 96.9% versus the corpus's 96.8%. Ranking owns recall - swap the naive scan for a proper ranked index and concept-page recall jumps from ~59% to ~96% while queries drop from ~200 ms to ~4 ms, gains you could get over the raw HTML too.
 
-![Top-10 recall for four lanes crossing ranker and representation, on all cases and on concept pages only](/img/posts/unity-corpus/ranker-vs-representation.png)
-
-*Four lanes, two case sets. Change the representation and nothing moves; change the ranker and concept pages jump ~35 points.*
+![Paired dots show top-10 recall across four ranker and representation combinations. Naive scans reach 94-95 percent on all cases but only 59-62 percent on concept pages. Both BM25 representations reach about 97 and 96 percent respectively.](/img/posts/unity-corpus/ranker-vs-representation.svg)
 
 What the corpus itself buys is the part I had originally undersold: an index around a tenth the size, and page reads that put roughly a tenth of the bytes into the agent's context. A harder suite of 100 realistic agent-style questions sits at 59% top-10 recall - an open problem, printed in the repo docs next to an erratum for the original numbers.
 

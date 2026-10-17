@@ -1,4 +1,6 @@
 {{- $alt := .Text | plainify -}}
+{{- $lightSource := replaceRE `\.svg$` ".light.svg" .Destination -}}
+{{- $vectorPair := and (strings.HasSuffix .Destination ".svg") (fileExists (printf "static%s" $lightSource)) -}}
 {{- $themeChart := in (.Page.Params.themeImages | default (slice)) .Destination -}}
 {{- $themeAttrs := cond $themeChart ` data-theme-chart class="theme-chart-fallback"` "" -}}
 {{- $img := printf `<img src="%s" alt="%s"%s%s loading="lazy" decoding="async">`
@@ -8,7 +10,16 @@
       $themeAttrs -}}
 {{- if .IsBlock -}}
   {{/* WHY: captions are adjacent italic paragraphs, not part of the image hook. */}}
-  <figure>{{ $img | safeHTML }}</figure>
+  {{- if $vectorPair -}}
+    <figure class="theme-vector">
+      <a class="chart-dark" href="{{ .Destination | safeURL }}" aria-label="View full-size chart">{{ $img | safeHTML }}</a>
+      <a class="chart-light" href="{{ $lightSource | safeURL }}" aria-label="View full-size chart"><img src="{{ $lightSource | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async"></a>
+    </figure>
+  {{- else if strings.HasSuffix .Destination ".svg" -}}
+    <figure><a href="{{ .Destination | safeURL }}" aria-label="View full-size chart">{{ $img | safeHTML }}</a></figure>
+  {{- else -}}
+    <figure>{{ $img | safeHTML }}</figure>
+  {{- end -}}
 {{- else -}}
   {{ $img | safeHTML }}
 {{- end -}}

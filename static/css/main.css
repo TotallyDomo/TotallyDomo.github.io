@@ -407,6 +407,12 @@ figure img {
   border: 1px solid var(--line);
 }
 
+/* WHY: vector pairs respect the manual theme before JS loads and when it fails. */
+.theme-vector .chart-light { display: none; }
+:root[data-theme="light"] .theme-vector .chart-dark { display: none; }
+:root[data-theme="light"] .theme-vector .chart-light { display: block; }
+.theme-vector img { border: 0; border-radius: 0; }
+
 /* WHY: retain readable source labels if canvas processing is blocked or fails. */
 :root[data-theme="light"] img.theme-chart-fallback { background-color: #0d1117; }
 

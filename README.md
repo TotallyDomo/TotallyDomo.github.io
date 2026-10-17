@@ -60,6 +60,11 @@ charts are not listed under `themeImages`, which remains for legacy PNGs.
 
 ## Authoring posts
 
+For every new or revised chart, follow [the chart defaults](docs/chart-style.md).
+That guide owns the visual rules, approved examples, source-data requirements,
+and dark/light review workflow. Extend the existing chart generator rather than
+starting from a generic chart template.
+
     hugo new posts/my-post.md
 
 New posts scaffold from `archetypes/posts.md`, which seeds the one-line writing note that every

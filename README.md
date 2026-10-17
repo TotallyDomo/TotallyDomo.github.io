@@ -53,6 +53,11 @@ the source gets a dark backing in light mode so it remains readable.
 
 CI checks theme switching and palette preservation in `tools/check-theme-charts.cjs`.
 
+The editorial charts use dark/light SVG pairs and matching dark PNG social exports. Their
+style, data provenance and rebuild workflow are in [docs/chart-style.md](docs/chart-style.md).
+The image hook selects the vector pair with CSS using the site's theme. These
+charts are not listed under `themeImages`, which remains for legacy PNGs.
+
 ## Authoring posts
 
     hugo new posts/my-post.md

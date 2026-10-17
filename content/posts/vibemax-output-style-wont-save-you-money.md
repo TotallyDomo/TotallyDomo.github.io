@@ -3,8 +3,6 @@ title: "Vibemax - Your Agent's Output Style Won't Save You Money"
 date: 2026-07-28
 description: "I built a low-narration response style to cut my agent's output-token bill. The measured answer: that lever barely exists. What it buys instead is reading time."
 image: "/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.png"
-themeImages:
-  - "/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.png"
 draft: false
 ---
 
@@ -109,24 +107,24 @@ session below, about three quarters of the cache-read bill is that unchanging pr
 re-read twelve times. Even at the cached-input multiplier of 0.1x those re-reads add up, 
 and whatever each turn appends gets written into the cache at a premium (2x input, 
 at the one-hour cache TTL these sessions used). That cache traffic is what dominates 
-the bars in the chart below. 
+the pies in the chart below.
 
 Reasoning cost can be controlled with the agent's effort setting, but set it too low and the 
 quality of the end result suffers. It is a hard balance between efficiency and quality, and it 
 stays mostly invisible unless you go looking for it. What is always visible is the text the
 agent prints when it finishes - and the instinct is to cut the fat from the things you can see.
 
-![Cost composition of the two demo sessions in two lanes each, tokens and list-price USD: cache reads and cache writes dominate both, the output tokens you never read come next, and the text a human actually reads is an orange sliver - 0.2% and 0.04% of tokens, about 3% and 1% of the dollars ($0.0015 and $0.0008). Bar-end figures are each session's total work: 182K and 392K tokens, $0.054 and $0.088](/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.png)
+![Four pies show the two demo sessions in tokens and list-price USD. Areas are comparable within each row. Cache reads and writes dominate, while visible text is a copper sliver: about 0.2% and 0.04% of tokens, 2.9% and 0.9% of dollars. Totals are 182K and 392K tokens, $0.054 and $0.088.](/img/posts/vibemax-output-style-wont-save-you-money/session-cost-composition.svg)
 
 Those are the exact two sessions from the demo above, priced at API list rates. The
-figure at the end of each bar is that session's total work - all tokens in, all tokens
-out, and the full cost of it. The orange sliver is the only part a human
+figure above each pie is that session's total work - all tokens in, all tokens
+out, and the full cost of it. The copper sliver is the only part a human
 ever reads: 0.2% and 0.04% of the tokens, about 3% and 1% of the dollars - $0.0015 and
 $0.0008 out of the $0.054 and $0.088 the sessions cost. 
 
-Uncached input is in the totals but too small to draw at all - 66 and 130 tokens. 
+Uncached input is included as tiny slices - 66 and 130 tokens.
 The Vibemax run happened to do more verification work - 21 API turns against 12 - which is 
-why its bars are longer; run-to-run work volume swamps any style effect on totals, and that 
+why its circles are larger. Run-to-run work volume swamps any style effect on totals, and that
 is exactly the point. 
 
 Haiku drew the demo, but the picture is not Haiku-specific: the repo's grid

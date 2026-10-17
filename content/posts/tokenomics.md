@@ -3,10 +3,6 @@ title: "Tokenomics - getting the most out of your AI usage"
 date: 2026-10-08
 description: "Practical ways to reduce AI token costs: trim startup context, manage compaction, and keep prompt caches warm."
 image: "/img/posts/tokenomics/context-growth-cost.png"
-themeImages:
-  - "/img/posts/tokenomics/context-growth-cost.png"
-  - "/img/posts/tokenomics/cold-boot-comparison.png"
-  - "/img/posts/tokenomics/keep-alive-payoff.png"
 draft: false
 ---
 
@@ -42,9 +38,7 @@ Effort levels control how much the model thinks and how long the reasoning trace
 Longer reasoning might also lead the model to try more things and call more tools, thus creating more turns. For hard, complex problems, this is a good thing because it allows the model to complete harder tasks, but for simpler problems, this can result in costly overthinking.
 Also, once output tokens enter the session context, they become the next turn's "input tokens" and can be billed as cached input tokens when the relevant prefix gets a cache hit.
 
-![Cost per turn rises from 6K to 15.9K TC over 100 turns as cached context grows, while new input and output stay constant.](/img/posts/tokenomics/context-growth-cost.png)
-
-*Illustrative example: a warm 15K-token prefix, 1K new input tokens and 500 output tokens per turn. After the first turn, that 1K includes the previous turn's 500-token response. No compaction or cache expiry.*
+![Area-scaled pies show cost per turn rising from 6K to 10.9K to 15.9K TC at turns 1, 50 and 100. Cache reads grow from 1.5K to 11.4K TC, while writes stay at 2K and output at 2.5K.](/img/posts/tokenomics/context-growth-cost.svg)
 
 You can now see how, as context accumulates in the session, the next turn becomes more and more expensive. Therefore, achieving the goal with the least amount of context and the fewest turns is crucial for optimal usage efficiency.
 
@@ -72,9 +66,7 @@ If left unchecked, that combined cost can easily reach 40-50K tokens of context,
 You can ask your agent to help you minimize that quite easily. In your first message of the session, ask it to list everything in the context and explain that you want to minimize your cold boot context. Then you can see how much "dead weight" you are carrying in every session. You will be surprised.
 I got my cold boot down to 15K.
 
-![Over 100 turns, a 15K-token startup prefix costs 178.5K TC (about $0.36) and a 45K-token prefix costs 535.5K TC (about $1.07), a difference of 357K TC (about $0.71) at Sonnet 5 API rates.](/img/posts/tokenomics/cold-boot-comparison.png)
-
-*Startup context only: one write at 2 TC per token, then 99 cached reads at 0.1 TC. Both prefixes stay cached; task-specific input and output are excluded. At Sonnet 5 API rates, that's about $0.36 versus $1.07, saving about $0.71 over 100 turns.*
+![Over 100 turns, a 15K-token startup prefix costs 178.5K TC (about $0.36) and a 45K-token prefix costs 535.5K TC (about $1.07), a difference of 357K TC (about $0.71) at Sonnet 5 API rates.](/img/posts/tokenomics/cold-boot-comparison.svg)
 
 
 
@@ -105,9 +97,7 @@ To avoid this, I've made a local "smart-wait" tool - a TTL-aware process-wait co
 
 Keep-alive requests aren't completely free, obviously, but it usually takes a long time for them to cost more than the "cold cache" premium. Useful model requests during the task refresh the cache too, so the keep-alive timer only needs to cover the gaps.
 
-![Keeping an 800K-token prefix warm costs 400K TC over a four-hour wait instead of 1.6 million TC for a cold resume. Break-even is around 17 hours and 25 minutes.](/img/posts/tokenomics/keep-alive-payoff.png)
-
-*Illustrative costs for an already-warm 800K-token prefix: 1-hour TTL, keep-alives every 55 minutes, and every read hits. Both strategies include resuming the session; added messages, output overhead and initial warm-up are excluded. At Sonnet 5 API rates, the four-hour wait costs $0.80 with keep-alives versus $3.20 for a cold resume.*
+![Of the 1.6M TC cold-resume budget, keeping an 800K-token prefix warm for four hours spends 400K TC (25%) and avoids 1.2M TC (75%). A step plot shows equal cost at 17 hours and 25 minutes.](/img/posts/tokenomics/keep-alive-payoff.svg)
 
 ## Preserving the Cache
 Certain actions can break the cached prefix and result in re-caching costs. While working in a session, avoid:
